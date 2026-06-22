@@ -1,0 +1,192 @@
+.page {
+  min-height: 100vh;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.panel {
+  width: min(960px, 100%);
+  min-height: 580px;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(320px, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.media {
+  position: relative;
+  min-height: 100%;
+  padding: 42px;
+  display: flex;
+  align-items: flex-end;
+  background:
+    linear-gradient(rgba(12, 22, 36, 0.12), rgba(12, 22, 36, 0.78)),
+    url("../../assets/Login/lado.png") center / cover;
+  color: #ffffff;
+}
+
+.media div {
+  max-width: 360px;
+}
+
+.media span,
+.formHeader span,
+.field span {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.media h1 {
+  margin: 12px 0 10px;
+  font-size: 36px;
+  line-height: 1.08;
+}
+
+.media p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.form {
+  padding: 54px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+}
+
+.formHeader {
+  margin-bottom: 6px;
+}
+
+.formHeader span {
+  color: var(--primary);
+}
+
+.formHeader h2 {
+  margin: 8px 0 8px;
+  font-size: 30px;
+  line-height: 1.16;
+}
+
+.formHeader p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.alert {
+  min-height: 44px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(180, 35, 24, 0.2);
+  border-radius: 8px;
+  color: var(--danger);
+  background: var(--danger-soft);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field span {
+  color: var(--text-muted);
+}
+
+.field input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.field input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(20, 108, 67, 0.14);
+}
+
+.form button {
+  height: 48px;
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  background: var(--primary);
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.form button:hover {
+  background: var(--primary-strong);
+  transform: translateY(-1px);
+}
+
+.form button:disabled {
+  opacity: 0.68;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 780px) {
+  .page {
+    padding: 14px;
+  }
+
+  .panel {
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .media {
+    min-height: 260px;
+    padding: 30px;
+  }
+
+  .media h1 {
+    font-size: 30px;
+  }
+
+  .form {
+    padding: 30px;
+  }
+}

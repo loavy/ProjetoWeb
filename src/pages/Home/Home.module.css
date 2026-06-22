@@ -1,0 +1,247 @@
+.page {
+  width: min(calc(100% - 40px), 1180px);
+  margin: 0 auto;
+  padding: 30px 0 56px;
+}
+
+.headerBand {
+  min-height: 220px;
+  padding: 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 28px;
+  align-items: end;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
+    url("../../assets/ComoFuncionaImgs/home.png") center / cover;
+  box-shadow: var(--shadow);
+}
+
+.eyebrow,
+.panelHeader span,
+.userBox span,
+.metrics span,
+.statusList dt {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.headerBand h1 {
+  max-width: 720px;
+  margin: 10px 0 12px;
+  font-size: 42px;
+  line-height: 1.08;
+}
+
+.headerBand p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.userBox,
+.primaryPanel,
+.statusPanel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.userBox {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.userBox strong {
+  overflow-wrap: anywhere;
+  font-size: 16px;
+}
+
+.userBox button,
+.actionRows button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.userBox button {
+  margin-top: 4px;
+  color: var(--primary-strong);
+  background: var(--primary-soft);
+}
+
+.userBox button:hover,
+.actionRows button:hover {
+  transform: translateY(-1px);
+}
+
+.metrics {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metrics article {
+  min-height: 130px;
+  padding: 18px;
+  display: grid;
+  align-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.metrics article:nth-child(1) {
+  border-top: 4px solid var(--primary);
+}
+
+.metrics article:nth-child(2) {
+  border-top: 4px solid var(--accent);
+}
+
+.metrics article:nth-child(3) {
+  border-top: 4px solid var(--warning);
+}
+
+.metrics article:nth-child(4) {
+  border-top: 4px solid var(--surface-strong);
+}
+
+.metrics svg {
+  color: var(--text-muted);
+}
+
+.metrics strong {
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.workspace {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 18px;
+  align-items: start;
+}
+
+.primaryPanel,
+.statusPanel {
+  padding: 22px;
+}
+
+.panelHeader h2 {
+  margin: 6px 0 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.actionRows {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.actionRows button {
+  min-height: 64px;
+  padding: 0 16px;
+  justify-content: flex-start;
+  color: var(--text);
+  background: var(--surface-muted);
+}
+
+.actionRows button svg:last-child {
+  margin-left: auto;
+}
+
+.actionRows button:hover {
+  background: var(--accent-soft);
+}
+
+.statusList {
+  margin: 18px 0 0;
+  display: grid;
+  gap: 14px;
+}
+
+.statusList div {
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.statusList dt,
+.statusList dd {
+  margin: 0;
+}
+
+.statusList dd {
+  margin-top: 5px;
+  color: var(--text);
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.loading {
+  margin: 18px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 800;
+}
+
+@media (max-width: 920px) {
+  .page {
+    width: min(calc(100% - 24px), 1180px);
+  }
+
+  .headerBand,
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    width: min(calc(100% - 16px), 1180px);
+    padding-top: 16px;
+  }
+
+  .headerBand,
+  .primaryPanel,
+  .statusPanel {
+    padding: 18px;
+  }
+
+  .headerBand h1 {
+    font-size: 32px;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+}

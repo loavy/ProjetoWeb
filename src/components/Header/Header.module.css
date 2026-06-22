@@ -1,0 +1,168 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  min-height: 72px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(246, 247, 249, 0.94);
+  backdrop-filter: blur(12px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.brandMark {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--surface-strong);
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.brand small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.navLink,
+.logoutButton,
+.menuButton {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.navLink {
+  padding: 0 12px;
+}
+
+.navLink:hover,
+.active {
+  color: var(--primary-strong);
+  background: var(--primary-soft);
+}
+
+.session {
+  margin-left: 8px;
+  padding-left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-left: 1px solid var(--border);
+}
+
+.session > span {
+  max-width: 220px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logoutButton,
+.menuButton {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.logoutButton {
+  padding: 0 12px;
+}
+
+.logoutButton:hover,
+.menuButton:hover {
+  color: var(--danger);
+  border-color: rgba(180, 35, 24, 0.25);
+  background: var(--danger-soft);
+}
+
+.menuButton {
+  display: none;
+  width: 40px;
+  padding: 0;
+}
+
+@media (max-width: 820px) {
+  .header {
+    min-height: 64px;
+    padding: 0 16px;
+    flex-wrap: wrap;
+  }
+
+  .menuButton {
+    display: inline-flex;
+  }
+
+  .nav {
+    display: none;
+    width: 100%;
+    padding: 0 0 14px;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .open {
+    display: flex;
+  }
+
+  .navLink,
+  .logoutButton {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .session {
+    margin-left: 0;
+    padding-left: 0;
+    padding-top: 12px;
+    align-items: stretch;
+    flex-direction: column;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .session > span {
+    max-width: 100%;
+  }
+}
