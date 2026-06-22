@@ -52,6 +52,7 @@ async function login(req, res) {
       JWT_SECRET,
       {
         algorithm: "HS256",
+        expiresIn: "1h",
       },
     );
     return res.json({

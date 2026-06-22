@@ -1,31 +1,24 @@
 import {
   ArrowRight,
-  BookOpenCheck,
-  CalendarDays,
-  Database,
-  FileText,
-  GraduationCap,
+  Building2,
+  Package,
   RefreshCw,
-  Search,
+  ShieldCheck,
+  Warehouse,
 } from "lucide-react";
 import { getUsuarioLogado } from "../../hooks/auth";
 import useApi from "../../hooks/useApi";
 import styles from "./Home.module.css";
 
-function getTotalComFallback(data) {
+function getTotal(data) {
   return Array.isArray(data) ? data.length : 0;
 }
 
-function getPeriodo(anos) {
-  const valores = anos
-    .map((item) => Number(item.ano))
-    .filter((ano) => Number.isInteger(ano));
-
-  if (valores.length === 0) {
-    return "Sem anos";
-  }
-
-  return `${Math.min(...valores)} - ${Math.max(...valores)}`;
+function calcularEstoque(products) {
+  return products.reduce(
+    (total, product) => total + Number(product.quantidade_estoque || 0),
+    0,
+  );
 }
 
 export default function Home({ onNavigate }) {
@@ -37,34 +30,39 @@ export default function Home({ onNavigate }) {
     reload: recarregarApi,
   } = useApi("/api");
   const {
-    data: questoes,
-    loading: carregandoQuestoes,
-    error: erroQuestoes,
-    reload: recarregarQuestoes,
-  } = useApi("/api/questoes");
-  const { data: anos } = useApi("/api/questoes/anos");
-  const { data: vestibulares } = useApi("/api/questoes/vestibulares");
+    data: companies,
+    loading: carregandoCompanies,
+    error: erroCompanies,
+    reload: recarregarCompanies,
+  } = useApi("/api/companies");
+  const {
+    data: products,
+    loading: carregandoProducts,
+    error: erroProducts,
+    reload: recarregarProducts,
+  } = useApi("/api/products");
 
-  const carregando = carregandoApi || carregandoQuestoes;
-  const totalQuestoes = getTotalComFallback(questoes);
-  const totalVestibulares = getTotalComFallback(vestibulares);
-  const periodo = getPeriodo(anos);
+  const carregando = carregandoApi || carregandoCompanies || carregandoProducts;
+  const totalCompanies = getTotal(companies);
+  const totalProducts = getTotal(products);
+  const totalEstoque = calcularEstoque(products);
   const api = apiInfo[0];
 
   function recarregarTudo() {
     recarregarApi();
-    recarregarQuestoes();
+    recarregarCompanies();
+    recarregarProducts();
   }
 
   return (
     <main className={styles.page}>
       <section className={styles.headerBand}>
         <div>
-          <span className={styles.eyebrow}>Painel de estudos</span>
-          <h1>Visao geral do acervo de matematica</h1>
+          <span className={styles.eyebrow}>Dashboard SGF</span>
+          <h1>Gestao de fornecedores e produtos</h1>
           <p>
-            Acompanhe os dados carregados do PostgreSQL e acesse rapidamente as
-            consultas de questoes do projeto.
+            Controle empresas fornecedoras, cadastre produtos vinculados a cada
+            empresa e acompanhe o estoque geral do sistema.
           </p>
         </div>
 
@@ -78,29 +76,29 @@ export default function Home({ onNavigate }) {
         </div>
       </section>
 
-      <section className={styles.metrics} aria-label="Resumo do acervo">
+      <section className={styles.metrics} aria-label="Resumo do SGF">
         <article>
-          <BookOpenCheck size={22} />
-          <span>Questoes</span>
-          <strong>{carregandoQuestoes ? "..." : totalQuestoes}</strong>
+          <Building2 size={22} />
+          <span>Empresas</span>
+          <strong>{carregandoCompanies ? "..." : totalCompanies}</strong>
         </article>
 
         <article>
-          <GraduationCap size={22} />
-          <span>Vestibulares</span>
-          <strong>{totalVestibulares || "0"}</strong>
+          <Package size={22} />
+          <span>Produtos</span>
+          <strong>{carregandoProducts ? "..." : totalProducts}</strong>
         </article>
 
         <article>
-          <CalendarDays size={22} />
-          <span>Periodo</span>
-          <strong>{periodo}</strong>
+          <Warehouse size={22} />
+          <span>Itens em estoque</span>
+          <strong>{carregandoProducts ? "..." : totalEstoque}</strong>
         </article>
 
         <article>
-          <Database size={22} />
-          <span>API</span>
-          <strong>{erroApi ? "Indisponivel" : carregandoApi ? "..." : "Online"}</strong>
+          <ShieldCheck size={22} />
+          <span>API protegida</span>
+          <strong>{erroApi ? "Falha" : carregandoApi ? "..." : "Online"}</strong>
         </article>
       </section>
 
@@ -108,19 +106,19 @@ export default function Home({ onNavigate }) {
         <div className={styles.primaryPanel}>
           <div className={styles.panelHeader}>
             <span>Fluxo principal</span>
-            <h2>Pesquisar e montar lista</h2>
+            <h2>Cadastre empresas antes dos produtos</h2>
           </div>
 
           <div className={styles.actionRows}>
-            <button type="button" onClick={() => onNavigate("/questoes")}>
-              <Search size={20} />
-              <span>Buscar questoes</span>
+            <button type="button" onClick={() => onNavigate("/empresas")}>
+              <Building2 size={20} />
+              <span>Gerenciar empresas</span>
               <ArrowRight size={18} />
             </button>
 
-            <button type="button" onClick={() => onNavigate("/funcionamento")}>
-              <FileText size={20} />
-              <span>Ver guia do projeto</span>
+            <button type="button" onClick={() => onNavigate("/produtos")}>
+              <Package size={20} />
+              <span>Gerenciar produtos</span>
               <ArrowRight size={18} />
             </button>
           </div>
@@ -139,13 +137,15 @@ export default function Home({ onNavigate }) {
             </div>
 
             <div>
-              <dt>Versao</dt>
-              <dd>{api?.versao || "-"}</dd>
+              <dt>Empresas</dt>
+              <dd>
+                {erroCompanies ? erroCompanies : `${totalCompanies} cadastrada(s)`}
+              </dd>
             </div>
 
             <div>
-              <dt>Questoes</dt>
-              <dd>{erroQuestoes ? erroQuestoes : `${totalQuestoes} carregadas`}</dd>
+              <dt>Produtos</dt>
+              <dd>{erroProducts ? erroProducts : `${totalProducts} cadastrado(s)`}</dd>
             </div>
           </dl>
 

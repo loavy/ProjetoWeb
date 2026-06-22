@@ -7,7 +7,6 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const companiesRoutes = require("./routes/companiesRoutes");
 const productsRoutes = require("./routes/productsRoutes");
-const questoesRoutes = require("./routes/questoesRoutes");
 const db = require("./config/database");
 
 const app = express();
@@ -34,7 +33,6 @@ app.get("/api", (req, res) => {
       "/api/auth/login",
       "/api/companies",
       "/api/products",
-      "/api/questoes",
     ],
   });
 });
@@ -42,7 +40,6 @@ app.get("/api", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/companies", companiesRoutes);
 app.use("/api/products", productsRoutes);
-app.use("/api/questoes", questoesRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ mensagem: "Rota não encontrada." });

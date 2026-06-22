@@ -13,9 +13,7 @@
   align-items: end;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
-    url("../../assets/ComoFuncionaImgs/home.png") center / cover;
+  background: var(--surface);
   box-shadow: var(--shadow);
 }
 

@@ -61,8 +61,6 @@ if (bancoConfigurado) {
 
 const criarTabela = async () => {
   const sql = `
-    CREATE EXTENSION IF NOT EXISTS unaccent;
-
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       email VARCHAR(150) UNIQUE NOT NULL,
@@ -88,64 +86,6 @@ const criarTabela = async () => {
       quantidade_estoque INTEGER NOT NULL,
       empresa_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE RESTRICT,
       criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS avaliacao (
-      id SERIAL PRIMARY KEY,
-      nivel VARCHAR(80) NOT NULL DEFAULT 'base'
-    );
-
-    CREATE TABLE IF NOT EXISTS vestibular (
-      id SERIAL PRIMARY KEY,
-      nome VARCHAR(180) NOT NULL,
-      ano INTEGER,
-      instituicao VARCHAR(180)
-    );
-
-    CREATE TABLE IF NOT EXISTS subtopico (
-      id SERIAL PRIMARY KEY,
-      nome VARCHAR(180) NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS questao (
-      id SERIAL PRIMARY KEY,
-      avaliacao_id INTEGER REFERENCES avaliacao(id) ON DELETE SET NULL,
-      vestibular_id INTEGER REFERENCES vestibular(id) ON DELETE SET NULL,
-      subtopico_id INTEGER REFERENCES subtopico(id) ON DELETE SET NULL,
-      enunciado TEXT NOT NULL,
-      tipo VARCHAR(80) DEFAULT 'base',
-      conteudo TEXT,
-      bloco TEXT,
-      explicacao TEXT,
-      comentario_especialista TEXT,
-      link_explicacao TEXT,
-      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS alternativa (
-      id SERIAL PRIMARY KEY,
-      questao_id INTEGER NOT NULL REFERENCES questao(id) ON DELETE CASCADE,
-      letra VARCHAR(8),
-      texto TEXT,
-      correta BOOLEAN DEFAULT false
-    );
-
-    INSERT INTO avaliacao (id, nivel)
-    VALUES (1, 'base')
-    ON CONFLICT (id) DO NOTHING;
-
-    INSERT INTO subtopico (id, nome)
-    VALUES (1, 'Geral')
-    ON CONFLICT (id) DO NOTHING;
-
-    SELECT setval(
-      pg_get_serial_sequence('avaliacao', 'id'),
-      GREATEST((SELECT MAX(id) FROM avaliacao), 1)
-    );
-
-    SELECT setval(
-      pg_get_serial_sequence('subtopico', 'id'),
-      GREATEST((SELECT MAX(id) FROM subtopico), 1)
     );
   `;
 

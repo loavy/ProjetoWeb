@@ -1,9 +1,9 @@
 import {
-  BookOpenCheck,
-  CircleHelp,
+  Building2,
   LayoutDashboard,
   LogOut,
   Menu,
+  Package,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -11,9 +11,9 @@ import { getUsuarioLogado } from "../../hooks/auth";
 import styles from "./Header.module.css";
 
 const navItems = [
-  { href: "/", label: "Painel", icon: LayoutDashboard },
-  { href: "/questoes", label: "Questoes", icon: BookOpenCheck },
-  { href: "/funcionamento", label: "Guia", icon: CircleHelp },
+  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/empresas", label: "Empresas", icon: Building2 },
+  { href: "/produtos", label: "Produtos", icon: Package },
 ];
 
 export default function Header({ currentPath, isLoggedIn, onLogout, onNavigate }) {
@@ -31,12 +31,12 @@ export default function Header({ currentPath, isLoggedIn, onLogout, onNavigate }
         href="/"
         className={styles.brand}
         onClick={(event) => navegar(event, "/")}
-        aria-label="Ir para o painel"
+        aria-label="Ir para o dashboard"
       >
-        <span className={styles.brandMark}>SS</span>
+        <span className={styles.brandMark}>SGF</span>
         <span>
-          SESI SENAI
-          <small>Matematica</small>
+          Sistema de Gestao
+          <small>Fornecimento</small>
         </span>
       </a>
 
@@ -54,9 +54,7 @@ export default function Header({ currentPath, isLoggedIn, onLogout, onNavigate }
       <nav className={`${styles.nav} ${menuAberto ? styles.open : ""}`}>
         {navItems.map((item) => {
           const Icon = item.icon;
-          const active =
-            currentPath === item.href ||
-            (item.href === "/funcionamento" && currentPath === "/guia");
+          const active = currentPath === item.href;
 
           return (
             <a

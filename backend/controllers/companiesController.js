@@ -1,9 +1,9 @@
-const db = require("../config/database");
+const companiesModel = require("../models/companiesModel");
 
 async function listCompanies(req, res) {
   try {
-    const result = await db.query("SELECT * FROM companies ORDER BY id");
-    return res.json(result.rows);
+    const companies = await companiesModel.listarTodas();
+    return res.json(companies);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ mensagem: "Erro ao listar empresas" });
@@ -18,12 +18,8 @@ async function createCompany(req, res) {
   }
 
   try {
-    const result = await db.query(
-      "INSERT INTO companies (nome, cnpj, telefone) VALUES ($1, $2, $3) RETURNING *",
-      [nome, cnpj, telefone || null],
-    );
-
-    return res.status(201).json(result.rows[0]);
+    const company = await companiesModel.criar({ nome, cnpj, telefone });
+    return res.status(201).json(company);
   } catch (err) {
     if (err && err.code === "23505") {
       return res.status(409).json({ mensagem: "CNPJ ja cadastrado" });
@@ -39,23 +35,17 @@ async function updateCompany(req, res) {
   const { nome, cnpj, telefone } = req.body;
 
   try {
-    const result = await db.query(
-      `
-      UPDATE companies
-      SET nome = COALESCE($1, nome),
-          cnpj = COALESCE($2, cnpj),
-          telefone = COALESCE($3, telefone)
-      WHERE id = $4
-      RETURNING *
-      `,
-      [nome || null, cnpj || null, telefone || null, id],
-    );
+    const company = await companiesModel.atualizar(id, {
+      nome,
+      cnpj,
+      telefone,
+    });
 
-    if (result.rowCount === 0) {
+    if (!company) {
       return res.status(404).json({ mensagem: "Empresa nao encontrada" });
     }
 
-    return res.json(result.rows[0]);
+    return res.json(company);
   } catch (err) {
     if (err && err.code === "23505") {
       return res.status(409).json({ mensagem: "CNPJ ja cadastrado" });
@@ -70,9 +60,9 @@ async function deleteCompany(req, res) {
   const { id } = req.params;
 
   try {
-    const result = await db.query("DELETE FROM companies WHERE id = $1", [id]);
+    const deleted = await companiesModel.deletar(id);
 
-    if (result.rowCount === 0) {
+    if (!deleted) {
       return res.status(404).json({ mensagem: "Empresa nao encontrada" });
     }
 

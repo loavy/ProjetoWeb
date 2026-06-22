@@ -42,8 +42,8 @@ export default function Login({ onLogin }) {
         <div className={styles.media} aria-hidden="true">
           <div>
             <span>Projeto SESI SENAI</span>
-            <h1>Banco de questoes de matematica</h1>
-            <p>Consulte, filtre e organize listas de estudo em um so lugar.</p>
+            <h1>Sistema de Gestao de Fornecimento</h1>
+            <p>Gerencie empresas fornecedoras e produtos vinculados com JWT.</p>
           </div>
         </div>
 

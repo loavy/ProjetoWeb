@@ -33,7 +33,7 @@ function NotFound({ onNavigate }) {
           <h1>Pagina nao encontrada</h1>
           <p>
             O endereco acessado nao existe ou foi movido. Volte para uma pagina
-            conhecida para continuar estudando.
+            conhecida para continuar gerenciando o sistema.
           </p>
 
           <div className={styles.actions}>

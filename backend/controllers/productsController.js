@@ -1,14 +1,73 @@
-const db = require("../config/database");
+const companiesModel = require("../models/companiesModel");
+const productsModel = require("../models/productsModel");
+
+function obterNumero(valor) {
+  if (valor === undefined || valor === null || valor === "") {
+    return null;
+  }
+
+  const numero = Number(valor);
+  return Number.isFinite(numero) ? numero : NaN;
+}
+
+function obterInteiro(valor) {
+  const numero = obterNumero(valor);
+
+  if (numero === null) {
+    return null;
+  }
+
+  return Number.isInteger(numero) ? numero : NaN;
+}
+
+function validarProdutoObrigatorio({ nome, preco, quantidade_estoque, empresa_id }) {
+  if (!nome || preco === null || quantidade_estoque === null || empresa_id === null) {
+    return "Campos obrigatorios: nome, preco, quantidade_estoque e empresa_id";
+  }
+
+  if (Number.isNaN(preco) || preco < 0) {
+    return "Preco invalido";
+  }
+
+  if (Number.isNaN(quantidade_estoque) || quantidade_estoque < 0) {
+    return "Quantidade em estoque invalida";
+  }
+
+  if (Number.isNaN(empresa_id) || empresa_id <= 0) {
+    return "empresa_id invalido";
+  }
+
+  return "";
+}
+
+function validarProdutoParcial({ preco, quantidade_estoque, empresa_id }) {
+  if (preco !== null && (Number.isNaN(preco) || preco < 0)) {
+    return "Preco invalido";
+  }
+
+  if (
+    quantidade_estoque !== null &&
+    (Number.isNaN(quantidade_estoque) || quantidade_estoque < 0)
+  ) {
+    return "Quantidade em estoque invalida";
+  }
+
+  if (empresa_id !== null && (Number.isNaN(empresa_id) || empresa_id <= 0)) {
+    return "empresa_id invalido";
+  }
+
+  return "";
+}
+
+async function empresaExiste(empresaId) {
+  const company = await companiesModel.buscarPorId(empresaId);
+  return Boolean(company);
+}
 
 async function listProducts(req, res) {
   try {
-    const result = await db.query(`
-      SELECT p.id, p.nome, p.preco, p.quantidade_estoque, p.empresa_id, c.nome AS empresa_nome
-      FROM products p
-      LEFT JOIN companies c ON c.id = p.empresa_id
-      ORDER BY p.id
-    `);
-    return res.json(result.rows);
+    const products = await productsModel.listarTodos();
+    return res.json(products);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ mensagem: "Erro ao listar produtos" });
@@ -16,28 +75,26 @@ async function listProducts(req, res) {
 }
 
 async function createProduct(req, res) {
-  const { nome, preco, quantidade_estoque, empresa_id } = req.body;
-  if (!nome || preco == null || quantidade_estoque == null || !empresa_id)
-    return res.status(400).json({ mensagem: "Campos obrigatórios ausentes" });
+  const dados = {
+    nome: req.body.nome,
+    preco: obterNumero(req.body.preco),
+    quantidade_estoque: obterInteiro(req.body.quantidade_estoque),
+    empresa_id: obterInteiro(req.body.empresa_id),
+  };
+  const erro = validarProdutoObrigatorio(dados);
+
+  if (erro) {
+    return res.status(400).json({ mensagem: erro });
+  }
 
   try {
-    const companyQ = await db.query("SELECT id FROM companies WHERE id = $1", [
-      empresa_id,
-    ]);
-    if (companyQ.rows.length === 0)
-      return res.status(400).json({ mensagem: "empresa_id inválido" });
+    if (!(await empresaExiste(dados.empresa_id))) {
+      return res.status(400).json({ mensagem: "empresa_id invalido" });
+    }
 
-    const result = await db.query(
-      "INSERT INTO products (nome, preco, quantidade_estoque, empresa_id) VALUES ($1, $2, $3, $4) RETURNING id",
-      [nome, preco, quantidade_estoque, empresa_id],
-    );
-    return res.status(201).json({
-      id: result.rows[0].id,
-      nome,
-      preco,
-      quantidade_estoque,
-      empresa_id,
-    });
+    const product = await productsModel.criar(dados);
+    const productWithCompany = await productsModel.buscarPorId(product.id);
+    return res.status(201).json(productWithCompany);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ mensagem: "Erro ao criar produto" });
@@ -46,43 +103,39 @@ async function createProduct(req, res) {
 
 async function updateProduct(req, res) {
   const { id } = req.params;
-  const { nome, preco, quantidade_estoque, empresa_id } = req.body;
+  const dados = {
+    nome: req.body.nome,
+    preco: obterNumero(req.body.preco),
+    quantidade_estoque: obterInteiro(req.body.quantidade_estoque),
+    empresa_id: obterInteiro(req.body.empresa_id),
+  };
+  const erro = validarProdutoParcial(dados);
+
+  if (erro) {
+    return res.status(400).json({ mensagem: erro });
+  }
 
   try {
-    const q = await db.query("SELECT * FROM products WHERE id = $1", [id]);
-    const existing = q.rows[0];
-    if (!existing)
-      return res.status(404).json({ mensagem: "Produto nao encontrado" });
+    const product = await productsModel.buscarPorId(id);
 
-    if (empresa_id) {
-      const companyQ = await db.query(
-        "SELECT id FROM companies WHERE id = $1",
-        [empresa_id],
-      );
-      if (companyQ.rows.length === 0)
-        return res.status(400).json({ mensagem: "empresa_id inválido" });
+    if (!product) {
+      return res.status(404).json({ mensagem: "Produto nao encontrado" });
     }
 
-    const updatedQ = await db.query(
-      "UPDATE products SET nome = $1, preco = $2, quantidade_estoque = $3, empresa_id = $4 WHERE id = $5 RETURNING *",
-      [
-        nome || existing.nome,
-        preco != null ? preco : existing.preco,
-        quantidade_estoque != null
-          ? quantidade_estoque
-          : existing.quantidade_estoque,
-        empresa_id || existing.empresa_id,
-        id,
-      ],
-    );
-    return res.json(updatedQ.rows[0]);
+    if (dados.empresa_id !== null && !(await empresaExiste(dados.empresa_id))) {
+      return res.status(400).json({ mensagem: "empresa_id invalido" });
+    }
+
+    const updated = await productsModel.atualizar(id, dados);
+    const updatedWithCompany = await productsModel.buscarPorId(updated.id);
+    return res.json(updatedWithCompany);
   } catch (err) {
     if (err && err.code === "23503") {
-      // foreign key
       return res
         .status(400)
-        .json({ mensagem: "Violação de restrição ao atualizar produto" });
+        .json({ mensagem: "Violacao de restricao ao atualizar produto" });
     }
+
     console.error(err);
     return res.status(500).json({ mensagem: "Erro ao atualizar produto" });
   }
@@ -90,8 +143,14 @@ async function updateProduct(req, res) {
 
 async function deleteProduct(req, res) {
   const { id } = req.params;
+
   try {
-    await db.query("DELETE FROM products WHERE id = $1", [id]);
+    const deleted = await productsModel.deletar(id);
+
+    if (!deleted) {
+      return res.status(404).json({ mensagem: "Produto nao encontrado" });
+    }
+
     return res.json({ mensagem: "Produto removido" });
   } catch (err) {
     console.error(err);
@@ -99,4 +158,9 @@ async function deleteProduct(req, res) {
   }
 }
 
-module.exports = { listProducts, createProduct, updateProduct, deleteProduct };
+module.exports = {
+  listProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};
