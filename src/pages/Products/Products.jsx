@@ -1,7 +1,7 @@
 import { Edit3, Loader2, Plus, RefreshCw, Save, Trash2, X } from "lucide-react";
 import { useState } from "react";
-import { apiFetch } from "../../hooks/useApi";
-import useApi from "../../hooks/useApi";
+import { isAdmin } from "../../hooks/auth";
+import useApi, { apiFetch } from "../../hooks/useApi";
 import styles from "./Products.module.css";
 
 const produtoVazio = {
@@ -32,6 +32,11 @@ export default function Products() {
   const [form, setForm] = useState(produtoVazio);
   const [salvando, setSalvando] = useState(false);
   const [feedback, setFeedback] = useState("");
+
+  const admin = isAdmin();
+  const workspaceClass = admin
+    ? styles.workspace
+    : `${styles.workspace} ${styles.noForm}`;
 
   const editando = Boolean(form.id);
 
@@ -123,92 +128,115 @@ export default function Products() {
         </button>
       </section>
 
-      <section className={styles.workspace}>
-        <form className={styles.formPanel} onSubmit={salvarProduto}>
-          <div className={styles.panelHeader}>
-            <span>{editando ? "Edicao" : "Cadastro"}</span>
-            <h2>{editando ? `Produto ${form.id}` : "Novo produto"}</h2>
-          </div>
+      <section className={workspaceClass}>
+        {admin && (
+          <form className={styles.formPanel} onSubmit={salvarProduto}>
+            <div className={styles.panelHeader}>
+              <span>{editando ? "Edicao" : "Cadastro"}</span>
+              <h2>{editando ? `Produto ${form.id}` : "Novo produto"}</h2>
+            </div>
 
-          <label className={styles.field}>
-            <span>Nome</span>
-            <input
-              value={form.nome}
-              onChange={(event) => atualizarCampo("nome", event.target.value)}
-              placeholder="Nome do produto"
-              required
-            />
-          </label>
-
-          <div className={styles.fieldGrid}>
             <label className={styles.field}>
-              <span>Preco</span>
+              <span>Nome</span>
               <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.preco}
-                onChange={(event) => atualizarCampo("preco", event.target.value)}
-                placeholder="0.00"
+                value={form.nome}
+                onChange={(event) => atualizarCampo("nome", event.target.value)}
+                placeholder="Nome do produto"
                 required
               />
             </label>
 
+            <div className={styles.fieldGrid}>
+              <label className={styles.field}>
+                <span>Preco</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.preco}
+                  onChange={(event) =>
+                    atualizarCampo("preco", event.target.value)
+                  }
+                  placeholder="0.00"
+                  required
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>Estoque</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.quantidade_estoque}
+                  onChange={(event) =>
+                    atualizarCampo("quantidade_estoque", event.target.value)
+                  }
+                  placeholder="0"
+                  required
+                />
+              </label>
+            </div>
+
             <label className={styles.field}>
-              <span>Estoque</span>
-              <input
-                type="number"
-                min="0"
-                step="1"
-                value={form.quantidade_estoque}
+              <span>Empresa</span>
+              <select
+                value={form.empresa_id}
                 onChange={(event) =>
-                  atualizarCampo("quantidade_estoque", event.target.value)
+                  atualizarCampo("empresa_id", event.target.value)
                 }
-                placeholder="0"
                 required
-              />
+              >
+                <option value="">Selecione uma empresa</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.nome}
+                  </option>
+                ))}
+              </select>
             </label>
-          </div>
 
-          <label className={styles.field}>
-            <span>Empresa</span>
-            <select
-              value={form.empresa_id}
-              onChange={(event) => atualizarCampo("empresa_id", event.target.value)}
-              required
-            >
-              <option value="">Selecione uma empresa</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.nome}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          {erroCompanies && <p className={`${styles.status} ${styles.error}`}>{erroCompanies}</p>}
-          {!erroCompanies && !carregandoCompanies && companies.length === 0 && (
-            <p className={styles.status}>
-              Cadastre uma empresa antes de criar produtos.
-            </p>
-          )}
-
-          <div className={styles.formActions}>
-            <button type="submit" disabled={salvando || companies.length === 0}>
-              {salvando ? <Loader2 className={styles.spinner} size={18} /> : <Save size={18} />}
-              <span>{salvando ? "Salvando..." : "Salvar"}</span>
-            </button>
-
-            {editando && (
-              <button type="button" className={styles.secondaryButton} onClick={limparForm}>
-                <X size={18} />
-                <span>Cancelar</span>
-              </button>
+            {erroCompanies && (
+              <p className={`${styles.status} ${styles.error}`}>
+                {erroCompanies}
+              </p>
             )}
-          </div>
+            {!erroCompanies &&
+              !carregandoCompanies &&
+              companies.length === 0 && (
+                <p className={styles.status}>
+                  Cadastre uma empresa antes de criar produtos.
+                </p>
+              )}
 
-          {feedback && <p className={styles.feedback}>{feedback}</p>}
-        </form>
+            <div className={styles.formActions}>
+              <button
+                type="submit"
+                disabled={salvando || companies.length === 0}
+              >
+                {salvando ? (
+                  <Loader2 className={styles.spinner} size={18} />
+                ) : (
+                  <Save size={18} />
+                )}
+                <span>{salvando ? "Salvando..." : "Salvar"}</span>
+              </button>
+
+              {editando && (
+                <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={limparForm}
+                >
+                  <X size={18} />
+                  <span>Cancelar</span>
+                </button>
+              )}
+            </div>
+
+            {feedback && <p className={styles.feedback}>{feedback}</p>}
+          </form>
+        )}
 
         <section className={styles.tablePanel}>
           <div className={styles.tableHeader}>
@@ -217,14 +245,18 @@ export default function Products() {
               <h2>{products.length} produto(s)</h2>
             </div>
 
-            <button type="button" onClick={limparForm}>
-              <Plus size={18} />
-              <span>Novo</span>
-            </button>
+            {admin && (
+              <button type="button" onClick={limparForm}>
+                <Plus size={18} />
+                <span>Limpar Formulario</span>
+              </button>
+            )}
           </div>
 
           {loading && <p className={styles.status}>Carregando produtos...</p>}
-          {error && <p className={`${styles.status} ${styles.error}`}>{error}</p>}
+          {error && (
+            <p className={`${styles.status} ${styles.error}`}>{error}</p>
+          )}
 
           {!loading && !error && (
             <div className={styles.tableWrap}>
@@ -236,7 +268,7 @@ export default function Products() {
                     <th>Preco</th>
                     <th>Estoque</th>
                     <th>Fornecedor</th>
-                    <th>Acoes</th>
+                    {admin && <th>Acoes</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -247,31 +279,35 @@ export default function Products() {
                       <td>{formatCurrency(product.preco)}</td>
                       <td>{product.quantidade_estoque}</td>
                       <td>{product.empresa_nome || "-"}</td>
-                      <td>
-                        <div className={styles.rowActions}>
-                          <button
-                            type="button"
-                            title="Editar"
-                            onClick={() => editarProduto(product)}
-                          >
-                            <Edit3 size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className={styles.dangerButton}
-                            title="Excluir"
-                            onClick={() => deletarProduto(product)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
+                      {admin && (
+                        <td>
+                          <div className={styles.rowActions}>
+                            <button
+                              type="button"
+                              title="Editar"
+                              onClick={() => editarProduto(product)}
+                            >
+                              <Edit3 size={16} />
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.dangerButton}
+                              title="Excluir"
+                              onClick={() => deletarProduto(product)}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
 
                   {products.length === 0 && (
                     <tr>
-                      <td colSpan="6">Nenhum produto cadastrado.</td>
+                      <td colSpan={admin ? "6" : "5"}>
+                        Nenhum produto cadastrado.
+                      </td>
                     </tr>
                   )}
                 </tbody>
