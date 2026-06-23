@@ -12,6 +12,7 @@ const produtoVazio = {
   empresa_id: "",
 };
 
+// Formata preco para o formato monetario brasileiro.
 function formatCurrency(value) {
   const number = Number(value || 0);
 
@@ -22,6 +23,7 @@ function formatCurrency(value) {
 }
 
 export default function Products() {
+  // Carrega produtos e empresas simultaneamente para preencher tabela e dropdown.
   const { data: products, loading, error, reload } = useApi("/api/products");
   const {
     data: companies,
@@ -42,6 +44,7 @@ export default function Products() {
 
   const editando = Boolean(form.id);
 
+  // Filtra produtos localmente por nome e empresa selecionada.
   const visibleProducts = (products || []).filter((p) => {
     const matchName = (p.nome || "")
       .toLowerCase()
@@ -71,6 +74,7 @@ export default function Products() {
   }
 
   async function recarregarTudo() {
+    // Atualiza listagens de produtos e empresas juntos.
     await Promise.all([reload(), reloadCompanies()]);
   }
 
@@ -80,6 +84,7 @@ export default function Products() {
     setFeedback("");
 
     try {
+      // Define se vai criar ou atualizar produto com base no id do formulario.
       const endpoint = editando ? `/api/products/${form.id}` : "/api/products";
       await apiFetch(endpoint, {
         method: editando ? "PUT" : "POST",
@@ -101,6 +106,7 @@ export default function Products() {
   }
 
   async function deletarProduto(product) {
+    // Confirma exclusao para evitar remocao acidental.
     const confirmou = window.confirm(`Remover o produto ${product.nome}?`);
 
     if (!confirmou) {

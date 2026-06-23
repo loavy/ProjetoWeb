@@ -10,11 +10,13 @@ import { getUsuarioLogado } from "../../hooks/auth";
 import useApi from "../../hooks/useApi";
 import styles from "./Home.module.css";
 
+// Helpers locais para calcular totais exibidos no dashboard.
 function getTotal(data) {
   return Array.isArray(data) ? data.length : 0;
 }
 
 function calcularEstoque(products) {
+  // Soma a quantidade em estoque de todos os produtos retornados pela API.
   return products.reduce(
     (total, product) => total + Number(product.quantidade_estoque || 0),
     0,
@@ -23,6 +25,7 @@ function calcularEstoque(products) {
 
 export default function Home({ onNavigate }) {
   const usuario = getUsuarioLogado();
+  // Consulta 3 endpoints diferentes: status da API, empresas e produtos.
   const {
     data: apiInfo,
     loading: carregandoApi,

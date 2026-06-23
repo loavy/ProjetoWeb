@@ -11,6 +11,7 @@ const empresaVazia = {
   telefone: "",
 };
 
+// Pagina de gerencia de empresas. Permite listar, criar, editar e remover empresas.
 export default function Companies() {
   const { data: companies, loading, error, reload } = useApi("/api/companies");
   const admin = isAdmin();
@@ -24,6 +25,7 @@ export default function Companies() {
 
   const editando = Boolean(form.id);
 
+  // Filtra empresas localmente por nome conforme o usuario digita.
   const visibleCompanies = (companies || []).filter((c) =>
     (c.nome || "").toLowerCase().includes(searchName.toLowerCase()),
   );
@@ -52,6 +54,7 @@ export default function Companies() {
     setFeedback("");
 
     try {
+      // Decide se sera criacao ou atualizacao com base em form.id.
       const endpoint = editando
         ? `/api/companies/${form.id}`
         : "/api/companies";
@@ -74,6 +77,7 @@ export default function Companies() {
   }
 
   async function deletarEmpresa(company) {
+    // Confirma exclusao com o usuario antes de chamar a API.
     const confirmou = window.confirm(`Remover a empresa ${company.nome}?`);
 
     if (!confirmou) {

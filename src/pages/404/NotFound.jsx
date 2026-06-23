@@ -2,7 +2,10 @@ import { ArrowLeft, Home } from "lucide-react";
 import styles from "./NotFound.module.css";
 
 function NotFound({ onNavigate }) {
+  // Pagina exibida quando o usuario acessa uma rota inexistente.
+  // Oferece acao de voltar para o dashboard ou retroceder no historico.
   function goHome() {
+    // Retorna para a home via callback de navegacao se disponivel.
     if (onNavigate) {
       onNavigate("/");
       return;
@@ -13,6 +16,7 @@ function NotFound({ onNavigate }) {
   }
 
   function goBack() {
+    // Volta uma pagina do historico, ou entao vai para home se nao houver historico.
     if (window.history.length > 1) {
       window.history.back();
       return;

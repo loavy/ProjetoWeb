@@ -1,5 +1,7 @@
 const db = require("../config/database");
 
+// Consulta padrao de produto que retorna os dados do produto e o nome da empresa relacionada.
+// Usa LEFT JOIN para permitir o retorno dos produtos mesmo se a empresa associada estiver ausente.
 const productSelect = `
   SELECT
     p.id,
@@ -15,16 +17,21 @@ const productSelect = `
 `;
 
 async function listarTodos() {
+  // Retorna lista completa de produtos, incluindo nome da empresa.
+  // Esse resultado ja contem a informacao de relacionamento com companies.
   const result = await db.query(`${productSelect} ORDER BY p.id`);
   return result.rows;
 }
 
 async function buscarPorId(id) {
+  // Busca um produto por id, retornando tambem o nome da empresa associada.
   const result = await db.query(`${productSelect} WHERE p.id = $1`, [id]);
   return result.rows[0] || null;
 }
 
 async function criar({ nome, preco, quantidade_estoque, empresa_id }) {
+  // Insere um produto na tabela products e retorna o registro criado.
+  // O campo preco e convertido para float para facilitar o consumo pelo frontend.
   const result = await db.query(
     `
     INSERT INTO products (nome, preco, quantidade_estoque, empresa_id)
@@ -44,6 +51,7 @@ async function criar({ nome, preco, quantidade_estoque, empresa_id }) {
 }
 
 async function atualizar(id, { nome, preco, quantidade_estoque, empresa_id }) {
+  // Atualiza um produto. Campos nao enviados permanecem inalterados via COALESCE.
   const result = await db.query(
     `
     UPDATE products
@@ -73,6 +81,7 @@ async function atualizar(id, { nome, preco, quantidade_estoque, empresa_id }) {
 }
 
 async function deletar(id) {
+  // Remove produto pelo id. Retorna true para indicar exclusao bem sucedida.
   const result = await db.query("DELETE FROM products WHERE id = $1", [id]);
   return result.rowCount > 0;
 }

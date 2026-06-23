@@ -24,7 +24,11 @@ export default function Header({
 }) {
   const [menuAberto, setMenuAberto] = useState(false);
 
+  // Componente de cabecalho / navegacao do sistema.
+  // Gera links internos que chamam o callback de navegacao do App.
+
   function navegar(event, href) {
+    // Fecha o menu mobile e delega navegacao para App.
     setMenuAberto(false);
     onNavigate(event, href);
   }

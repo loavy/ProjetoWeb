@@ -1,9 +1,11 @@
 const path = require("path");
+// Carrega .env da raiz do projeto para configurar conexao com PostgreSQL
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
 const { Pool } = require("pg");
 const bcrypt = require("bcryptjs");
 
+// Variaveis de ambiente necessarias para a conexao com o banco
 const variaveisObrigatorias = [
   "DB_USER",
   "DB_HOST",
@@ -17,6 +19,8 @@ const variaveisAusentes = variaveisObrigatorias.filter((nome) => {
   return typeof valor !== "string" || valor.trim() === "";
 });
 
+// Verifica se todas as variaveis obrigatorias de banco estao presentes.
+// Se alguma variavel faltar, a aplicacao nao tenta se conectar.
 const bancoConfigurado = variaveisAusentes.length === 0;
 
 if (!bancoConfigurado) {
@@ -27,6 +31,9 @@ if (!bancoConfigurado) {
   );
 }
 
+// Cria o pool de conexoes do PostgreSQL.
+// O pool eh usado para fazer queries de forma eficiente e reutilizar conexoes.
+// Se as variaveis de ambiente nao estiverem presentes, criamos um stub que gera erro.
 const pool = bancoConfigurado
   ? new Pool({
       user: process.env.DB_USER,
@@ -51,6 +58,8 @@ if (bancoConfigurado) {
       console.error("Erro ao conectar ao PostgreSQL:", erro.message);
       console.error("Verifique suas credenciais no arquivo .env");
     } else {
+      // Conexao inicial estabelecida com sucesso.
+      // Apenas logamos e liberamos o client, pois o pool gerencia conexoes internamente.
       console.log("Conectado ao PostgreSQL!");
       console.log(`Banco: ${process.env.DB_NAME}`);
       console.log(`Host: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
@@ -59,6 +68,8 @@ if (bancoConfigurado) {
   });
 }
 
+// Garante que as tabelas e campos necessarios existam no banco.
+// Essa rotina roda apenas uma vez no arranque do servidor e preserva a estrutura.
 const criarTabela = async () => {
   const sql = `
     CREATE TABLE IF NOT EXISTS users (
@@ -115,6 +126,9 @@ function getUsuarioInicial(prefixo, perfilPadrao) {
 }
 
 async function criarUsuariosIniciais() {
+  // Insere usuarios iniciais definidos em variaveis de ambiente.
+  // Ideal para ambiente de desenvolvimento / testes, com admin e user predefinidos.
+  // Se o email e senha de admin/user estiverem definidos, o banco os atualiza ou cria.
   const usuarios = [
     getUsuarioInicial("user", "user"),
     getUsuarioInicial("admin", "admin"),

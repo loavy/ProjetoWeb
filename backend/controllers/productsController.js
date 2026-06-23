@@ -2,6 +2,8 @@ const companiesModel = require("../models/companiesModel");
 const productsModel = require("../models/productsModel");
 
 function obterNumero(valor) {
+  // Converte valor de entrada para numero valido ou retorna NaN.
+  // Usado para transformar strings de formulario em numeros.
   if (valor === undefined || valor === null || valor === "") {
     return null;
   }
@@ -11,6 +13,7 @@ function obterNumero(valor) {
 }
 
 function obterInteiro(valor) {
+  // Garante que o valor recebido seja um inteiro valido.
   const numero = obterNumero(valor);
 
   if (numero === null) {
@@ -21,6 +24,8 @@ function obterInteiro(valor) {
 }
 
 function validarProdutoObrigatorio({ nome, preco, quantidade_estoque, empresa_id }) {
+  // Verifica se todos campos obrigatorios foram preenchidos corretamente.
+  // Isso evita que valores invalidos sejam persistidos no banco.
   if (!nome || preco === null || quantidade_estoque === null || empresa_id === null) {
     return "Campos obrigatorios: nome, preco, quantidade_estoque e empresa_id";
   }
@@ -41,6 +46,8 @@ function validarProdutoObrigatorio({ nome, preco, quantidade_estoque, empresa_id
 }
 
 function validarProdutoParcial({ preco, quantidade_estoque, empresa_id }) {
+  // Valida apenas os campos fornecidos em atualizacao parcial.
+  // Campos nao enviados podem permanecer inalterados na base.
   if (preco !== null && (Number.isNaN(preco) || preco < 0)) {
     return "Preco invalido";
   }
@@ -60,11 +67,14 @@ function validarProdutoParcial({ preco, quantidade_estoque, empresa_id }) {
 }
 
 async function empresaExiste(empresaId) {
+  // Confirma que a empresa selecionada existe no banco
   const company = await companiesModel.buscarPorId(empresaId);
   return Boolean(company);
 }
 
 async function listProducts(req, res) {
+  // Retorna lista de produtos com empresa associada.
+  // O model ja realiza a junção com companies para retornar empresa_nome.
   try {
     const products = await productsModel.listarTodos();
     return res.json(products);
@@ -81,6 +91,8 @@ async function createProduct(req, res) {
     quantidade_estoque: obterInteiro(req.body.quantidade_estoque),
     empresa_id: obterInteiro(req.body.empresa_id),
   };
+
+  // Valida os campos obrigatorios antes de criar o registro.
   const erro = validarProdutoObrigatorio(dados);
 
   if (erro) {
@@ -88,6 +100,8 @@ async function createProduct(req, res) {
   }
 
   try {
+    // Garante que a empresa selecionada exista antes de criar o produto.
+    // Evita violacao de integridade referencial no banco.
     if (!(await empresaExiste(dados.empresa_id))) {
       return res.status(400).json({ mensagem: "empresa_id invalido" });
     }
@@ -109,6 +123,8 @@ async function updateProduct(req, res) {
     quantidade_estoque: obterInteiro(req.body.quantidade_estoque),
     empresa_id: obterInteiro(req.body.empresa_id),
   };
+
+  // Valida somente os campos enviados, pois a atualizacao pode ser parcial.
   const erro = validarProdutoParcial(dados);
 
   if (erro) {
@@ -116,6 +132,7 @@ async function updateProduct(req, res) {
   }
 
   try {
+    // Verifica existencia do produto antes de atualizar.
     const product = await productsModel.buscarPorId(id);
 
     if (!product) {
@@ -123,6 +140,7 @@ async function updateProduct(req, res) {
     }
 
     if (dados.empresa_id !== null && !(await empresaExiste(dados.empresa_id))) {
+      // Atualizacao nao pode referenciar empresa inexistente.
       return res.status(400).json({ mensagem: "empresa_id invalido" });
     }
 
@@ -145,6 +163,7 @@ async function deleteProduct(req, res) {
   const { id } = req.params;
 
   try {
+    // Remove produto do banco pelo id
     const deleted = await productsModel.deletar(id);
 
     if (!deleted) {

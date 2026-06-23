@@ -4,11 +4,13 @@ import { salvarSessao } from "../../hooks/auth";
 import { apiFetch } from "../../hooks/useApi";
 import styles from "./Login.module.css";
 
+// Pagina de login: usuario informa email e senha para obter JWT do backend.
 export default function Login({ onLogin }) {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
   async function handleSubmit(event) {
+    // Prevencao de reload vindo do submit do formulario.
     event.preventDefault();
     setErro("");
     setCarregando(true);
@@ -18,16 +20,19 @@ export default function Login({ onLogin }) {
     const senha = String(formData.get("senha") || "");
 
     try {
+      // Chama o endpoint de autenticação com email e senha.
       const data = await apiFetch("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, senha }),
       });
 
+      // Armazena o token JWT e os dados do usuario no localStorage.
       salvarSessao({
         token: data.token,
         usuario: data.usuario || { email },
       });
 
+      // Sinaliza ao pai (App) que o login foi concluido.
       onLogin();
     } catch (error) {
       setErro(error.message || "Erro ao realizar login.");
