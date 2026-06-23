@@ -1,37 +1,63 @@
+// Importa ícones do Lucide React
 import { AlertCircle, Loader2, LogIn } from "lucide-react";
+// Importa hook useState do React
 import { useState } from "react";
+// Importa função para salvar sessão do usuário
 import { salvarSessao } from "../../hooks/auth";
+// Importa função para fazer requisições à API
 import { apiFetch } from "../../hooks/useApi";
+// Importa estilos CSS do componente
 import styles from "./Login.module.css";
 
+/**
+ * Componente de Login
+ * Renderiza formulário para autenticação do usuário
+ * @param {Object} props - Props do componente
+ * @param {Function} props.onLogin - Callback chamado após login bem-sucedido
+ */
 export default function Login({ onLogin }) {
+  // Estado para armazenar mensagens de erro
   const [erro, setErro] = useState("");
+  // Estado para controlar se está carregando (enviando requisição)
   const [carregando, setCarregando] = useState(false);
 
+  /**
+   * Manipulador do envio do formulário de login
+   * @param {Event} event - Evento do formulário
+   */
   async function handleSubmit(event) {
+    // Previne o comportamento padrão do formulário
     event.preventDefault();
+    // Limpa erros anteriores
     setErro("");
+    // Define estado de carregamento
     setCarregando(true);
 
+    // Extrai dados do formulário
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("email") || "").trim();
     const senha = String(formData.get("senha") || "");
 
     try {
+      // Faz requisição de login na API
       const data = await apiFetch("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, senha }),
       });
 
+      // Salva o token e dados do usuário na sessão (localStorage)
       salvarSessao({
         token: data.token,
         usuario: data.usuario || { email },
       });
 
+      // Chama callback de login bem-sucedido
       onLogin();
     } catch (error) {
+      // Exibe mensagem de erro se houver falha
       setErro(error.message || "Erro ao realizar login.");
     } finally {
+      // Define estado de carregamento como false
       setCarregando(false);
     }
   }

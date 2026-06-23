@@ -1,9 +1,15 @@
+// Importa ícones do Lucide React
 import { Edit3, Loader2, Plus, RefreshCw, Save, Trash2, X } from "lucide-react";
+// Importa hook useState do React
 import { useState } from "react";
+// Importa função para verificar permissão de admin
 import { isAdmin } from "../../hooks/auth";
+// Importa hook customizado e função para requisições à API
 import useApi, { apiFetch } from "../../hooks/useApi";
+// Importa estilos CSS do componente
 import styles from "./Companies.module.css";
 
+// Objeto padrão para um formulário vazio de empresa
 const empresaVazia = {
   id: "",
   nome: "",
@@ -11,31 +17,57 @@ const empresaVazia = {
   telefone: "",
 };
 
+/**
+ * Componente de Gerenciamento de Empresas
+ * Permite listar, criar, editar e deletar empresas (se admin)
+ */
 export default function Companies() {
+  // Carrega lista de empresas da API
   const { data: companies, loading, error, reload } = useApi("/api/companies");
+  // Verifica se o usuário tem permissão de admin
   const admin = isAdmin();
+  // Define classe CSS dependendo de permissão (mostra ou não o formulário)
   const workspaceClass = admin
     ? styles.workspace
     : `${styles.workspace} ${styles.noForm}`;
+  
+  // Estado do formulário de empresa
   const [form, setForm] = useState(empresaVazia);
+  // Estado para controlar se está salvando
   const [salvando, setSalvando] = useState(false);
+  // Estado para feedback (mensagens) ao usuário
   const [feedback, setFeedback] = useState("");
+  // Estado para filtro de busca por nome
   const [searchName, setSearchName] = useState("");
 
+  // Verifica se está editando (se há um ID no formulário)
   const editando = Boolean(form.id);
 
+  // Filtra empresas visíveis baseado na busca por nome
   const visibleCompanies = (companies || []).filter((c) =>
     (c.nome || "").toLowerCase().includes(searchName.toLowerCase()),
   );
 
+  /**
+   * Atualiza um campo do formulário
+   * @param {string} nome - Nome do campo
+   * @param {*} valor - Novo valor do campo
+   */
   function atualizarCampo(nome, valor) {
     setForm((atual) => ({ ...atual, [nome]: valor }));
   }
 
+  /**
+   * Limpa o formulário para criar uma nova empresa
+   */
   function limparForm() {
     setForm(empresaVazia);
   }
 
+  /**
+   * Carrega uma empresa no formulário para edição
+   * @param {Object} company - Empresa a editar
+   */
   function editarEmpresa(company) {
     setForm({
       id: String(company.id),
@@ -46,15 +78,21 @@ export default function Companies() {
     setFeedback("");
   }
 
+  /**
+   * Salva uma empresa (cria nova ou atualiza existente)
+   * @param {Event} event - Evento do formulário
+   */
   async function salvarEmpresa(event) {
     event.preventDefault();
     setSalvando(true);
     setFeedback("");
 
     try {
+      // Define endpoint baseado se está editando ou criando
       const endpoint = editando
         ? `/api/companies/${form.id}`
         : "/api/companies";
+      // Faz a requisição à API
       await apiFetch(endpoint, {
         method: editando ? "PUT" : "POST",
         body: JSON.stringify({
@@ -63,17 +101,25 @@ export default function Companies() {
           telefone: form.telefone,
         }),
       });
+      // Limpa o formulário
       limparForm();
+      // Recarrega a lista de empresas
       await reload();
+      // Exibe mensagem de sucesso
       setFeedback(editando ? "Empresa atualizada." : "Empresa cadastrada.");
     } catch (err) {
+      // Exibe mensagem de erro
       setFeedback(err.message);
-    } finally {
-      setSalvando(false);
+    } finally {     setSalvando(false);
     }
   }
 
+  /**
+   * Deleta uma empresa após confirmação
+   * @param {Object} company - Empresa a deletar
+   */
   async function deletarEmpresa(company) {
+    // Pede confirmação ao usuário
     const confirmou = window.confirm(`Remover a empresa ${company.nome}?`);
 
     if (!confirmou) {
@@ -83,13 +129,18 @@ export default function Companies() {
     setFeedback("");
 
     try {
+      // Faz a requisição de delete à API
       await apiFetch(`/api/companies/${company.id}`, { method: "DELETE" });
+      // Recarrega a lista
       await reload();
+      // Exibe mensagem de sucesso
       setFeedback("Empresa removida.");
+      // Limpa o formulário se estava editando a empresa deletada
       if (String(company.id) === form.id) {
         limparForm();
       }
     } catch (err) {
+      // Exibe mensagem de erro
       setFeedback(err.message);
     }
   }
