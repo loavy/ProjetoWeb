@@ -32,6 +32,8 @@ export default function Products() {
   const [form, setForm] = useState(produtoVazio);
   const [salvando, setSalvando] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [searchName, setSearchName] = useState("");
+  const [filterCompany, setFilterCompany] = useState("");
 
   const admin = isAdmin();
   const workspaceClass = admin
@@ -39,6 +41,15 @@ export default function Products() {
     : `${styles.workspace} ${styles.noForm}`;
 
   const editando = Boolean(form.id);
+
+  const visibleProducts = (products || []).filter((p) => {
+    const matchName = (p.nome || "")
+      .toLowerCase()
+      .includes(searchName.toLowerCase());
+    const matchCompany =
+      !filterCompany || String(p.empresa_id) === String(filterCompany);
+    return matchName && matchCompany;
+  });
 
   function atualizarCampo(nome, valor) {
     setForm((atual) => ({ ...atual, [nome]: valor }));
@@ -222,6 +233,15 @@ export default function Products() {
                 <span>{salvando ? "Salvando..." : "Salvar"}</span>
               </button>
 
+              <button
+                type="button"
+                className={styles.orangeButton}
+                onClick={limparForm}
+              >
+                <Plus size={18} />
+                <span>Limpar Formulario</span>
+              </button>
+
               {editando && (
                 <button
                   type="button"
@@ -242,15 +262,28 @@ export default function Products() {
           <div className={styles.tableHeader}>
             <div>
               <span>Listagem</span>
-              <h2>{products.length} produto(s)</h2>
-            </div>
+              <h2>{visibleProducts.length} produto(s)</h2>
 
-            {admin && (
-              <button type="button" onClick={limparForm}>
-                <Plus size={18} />
-                <span>Limpar Formulario</span>
-              </button>
-            )}
+              <div className={styles.filters}>
+                <input
+                  placeholder="Buscar por nome"
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                />
+
+                <select
+                  value={filterCompany}
+                  onChange={(e) => setFilterCompany(e.target.value)}
+                >
+                  <option value="">Todos fornecedores</option>
+                  {companies.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
           {loading && <p className={styles.status}>Carregando produtos...</p>}
@@ -272,7 +305,7 @@ export default function Products() {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
+                  {visibleProducts.map((product) => (
                     <tr key={product.id}>
                       <td>{product.id}</td>
                       <td>{product.nome}</td>
@@ -303,7 +336,7 @@ export default function Products() {
                     </tr>
                   ))}
 
-                  {products.length === 0 && (
+                  {visibleProducts.length === 0 && (
                     <tr>
                       <td colSpan={admin ? "6" : "5"}>
                         Nenhum produto cadastrado.

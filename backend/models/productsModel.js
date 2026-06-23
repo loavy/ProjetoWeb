@@ -60,7 +60,13 @@ async function atualizar(id, { nome, preco, quantidade_estoque, empresa_id }) {
       empresa_id,
       criado_em
     `,
-    [nome || null, preco ?? null, quantidade_estoque ?? null, empresa_id || null, id],
+    [
+      nome || null,
+      preco ?? null,
+      quantidade_estoque ?? null,
+      empresa_id || null,
+      id,
+    ],
   );
 
   return result.rows[0] || null;

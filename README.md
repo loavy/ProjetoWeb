@@ -1,34 +1,40 @@
-# Projeto SENAI-SESI
+# Projeto Web - Sistema de Gestão de Fornecimento
+
+Este projeto é uma aplicação full-stack com frontend em React + Vite e backend em Node.js + Express. A aplicação gerencia empresas fornecedoras e produtos relacionados, com autenticação via login e painel administrativo.
 
 ## Estrutura do projeto
 
-```txt
-Projeto_SENAI-SESI/
+```
+ProjetoWeb/
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   └── server.js
+├── public/
 ├── src/
+│   ├── assets/
 │   ├── components/
 │   ├── hooks/
 │   ├── pages/
 │   ├── App.jsx
+│   ├── index.css
 │   └── main.jsx
-├── backend/
-│   ├── config/
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   └── server.js
 ├── package.json
 └── README.md
 ```
 
-## Como rodar o projeto
+## Pré-requisitos
 
-Primeiro, instale as dependências:
+- Node.js 18+ instalado
+- PostgreSQL instalado e configurado
+- Um arquivo `.env` na raiz do projeto com as variáveis de ambiente
 
-```bash
-npm install
-```
+## Configuração do `.env`
 
-Depois, crie um arquivo `.env` na raiz do projeto:
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 
 ```env
 PORT=3000
@@ -38,61 +44,108 @@ DB_HOST=localhost
 DB_NAME=seu_banco
 DB_PASSWORD=sua_senha
 DB_PORT=5432
+JWT_SECRET=algumsegredoseguro
 ```
 
-Rodar o backend:
+> O backend utiliza PostgreSQL e o arquivo `backend/config/database.js` faz a conexão com o banco.
 
-> Não precisa criar as `tables`, o `database.js` já vai fazer isso.
+## Instalação
+
+Na raiz do projeto, execute:
+
+```bash
+npm install
+```
+
+## Executando o projeto
+
+### Backend
+
+Inicie o servidor Express:
 
 ```bash
 npm run backend
 ```
 
-O backend vai rodar em: `http://localhost:3000`
+O backend ficará disponível em:
 
-Rodar o frontend:
-Em outro terminal:
+```
+http://localhost:3000
+```
+
+### Frontend
+
+Em outro terminal, execute:
 
 ```bash
 npm run dev
 ```
 
-Rotas da API:
+O frontend com Vite deverá ficar disponível em uma URL como:
 
 ```
-GET /
-GET /api
-
-GET /api/questoes
-GET /api/questoes/:id
-
-GET /api/questoes?q=texto
-GET /api/questoes?id=1
-
-GET /api/questoes?nivel=base
-GET /api/questoes?nivel=intermediario
-GET /api/questoes?nivel=avancado
-
-GET /api/questoes?ano=2024
-GET /api/questoes/anos
-GET /api/questoes/ids
-
-GET /api/questoes?q=texto&id=1&nivel=base&ano=2024
-
-GET /api/questoes/primeiroSelect
-GET /api/questoes/segundoSelect/:chave
-GET /api/questoes/terceiroSelect
-
-GET /api/questoes/topico/:topicoid
-
-POST /api/questoes
-PUT /api/questoes/:id
-DELETE /api/questoes/:id
+http://localhost:5173
 ```
 
-Observacao: a rota `/api/pesquisa` foi removida. As buscas agora ficam na
-propria rota `/api/questoes`.
+## Rotas de API
 
-## Pesquisa com ou sem acento
+### Autenticação
 
-A pesquisa foi feita para aceitar palavras com acento ou sem acento.
+- `POST /api/auth/login`
+
+### Empresas
+
+- `GET /api/companies`
+- `POST /api/companies`
+- `PUT /api/companies/:id`
+- `DELETE /api/companies/:id`
+
+### Produtos
+
+- `GET /api/products`
+- `POST /api/products`
+- `PUT /api/products/:id`
+- `DELETE /api/products/:id`
+
+## Funcionalidades principais
+
+- Login de usuário via API
+- Cadastro, edição e exclusão de empresas
+- Cadastro, edição e exclusão de produtos vinculados a empresas
+- Filtros de busca nas páginas de empresas e produtos
+- Interface administrativa responsiva
+
+## Observações
+
+- Não existe rota de cadastro de usuário (`/register`) na API.
+- A autenticação é feita com JWT usando `JWT_SECRET`.
+
+## Comandos úteis
+
+```bash
+npm run dev
+npm run backend
+npm run build
+npm run lint
+```
+
+## Arquivos importantes
+
+- `backend/server.js`
+- `backend/routes/authRoutes.js`
+- `backend/routes/companiesRoutes.js`
+- `backend/routes/productsRoutes.js`
+- `backend/config/database.js`
+- `src/pages/Companies/Companies.jsx`
+- `src/pages/Products/Products.jsx`
+
+## Como contribuir
+
+1. Instale as dependências com `npm install`.
+2. Inicie o backend e o frontend em terminais separados.
+3. Faça as alterações necessárias no frontend ou backend.
+4. Teste as rotas e a interface.
+
+## Contato
+
+Para ajustes de ambiente ou banco de dados, revise o arquivo `backend/config/database.js` e o `backend/server.js`.

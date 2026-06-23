@@ -28,12 +28,7 @@ app.get("/api", (req, res) => {
   res.json({
     mensagem: "API SGF",
     versao: "1.0",
-    rotas: [
-      "/api/auth/register",
-      "/api/auth/login",
-      "/api/companies",
-      "/api/products",
-    ],
+    rotas: ["/api/auth/login", "/api/companies", "/api/products"],
   });
 });
 

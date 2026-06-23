@@ -20,8 +20,13 @@ export default function Companies() {
   const [form, setForm] = useState(empresaVazia);
   const [salvando, setSalvando] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [searchName, setSearchName] = useState("");
 
   const editando = Boolean(form.id);
+
+  const visibleCompanies = (companies || []).filter((c) =>
+    (c.nome || "").toLowerCase().includes(searchName.toLowerCase()),
+  );
 
   function atualizarCampo(nome, valor) {
     setForm((atual) => ({ ...atual, [nome]: valor }));
@@ -156,6 +161,15 @@ export default function Companies() {
                 <span>{salvando ? "Salvando..." : "Salvar"}</span>
               </button>
 
+              <button
+                type="button"
+                className={styles.orangeButton}
+                onClick={limparForm}
+              >
+                <Plus size={18} />
+                <span>Limpar Formulario</span>
+              </button>
+
               {editando && (
                 <button
                   type="button"
@@ -176,15 +190,16 @@ export default function Companies() {
           <div className={styles.tableHeader}>
             <div>
               <span>Listagem</span>
-              <h2>{companies.length} empresa(s)</h2>
-            </div>
+              <h2>{visibleCompanies.length} empresa(s)</h2>
 
-            {admin && (
-              <button type="button" onClick={limparForm}>
-                <Plus size={18} />
-                <span>Limpar Formulario</span>
-              </button>
-            )}
+              <div className={styles.filters}>
+                <input
+                  placeholder="Buscar por nome"
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
 
           {loading && <p className={styles.status}>Carregando empresas...</p>}
@@ -205,7 +220,7 @@ export default function Companies() {
                   </tr>
                 </thead>
                 <tbody>
-                  {companies.map((company) => (
+                  {visibleCompanies.map((company) => (
                     <tr key={company.id}>
                       <td>{company.id}</td>
                       <td>{company.nome}</td>
@@ -235,7 +250,7 @@ export default function Companies() {
                     </tr>
                   ))}
 
-                  {companies.length === 0 && (
+                  {visibleCompanies.length === 0 && (
                     <tr>
                       <td colSpan={admin ? "5" : "4"}>
                         Nenhuma empresa cadastrada.

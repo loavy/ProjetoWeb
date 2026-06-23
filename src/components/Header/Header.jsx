@@ -7,8 +7,8 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import { getUsuarioLogado } from "../../hooks/auth";
 import styles from "./Header.module.css";
+import logo from "/public/product.svg";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -16,9 +16,13 @@ const navItems = [
   { href: "/produtos", label: "Produtos", icon: Package },
 ];
 
-export default function Header({ currentPath, isLoggedIn, onLogout, onNavigate }) {
+export default function Header({
+  currentPath,
+  isLoggedIn,
+  onLogout,
+  onNavigate,
+}) {
   const [menuAberto, setMenuAberto] = useState(false);
-  const usuario = getUsuarioLogado();
 
   function navegar(event, href) {
     setMenuAberto(false);
@@ -33,7 +37,9 @@ export default function Header({ currentPath, isLoggedIn, onLogout, onNavigate }
         onClick={(event) => navegar(event, "/")}
         aria-label="Ir para o dashboard"
       >
-        <span className={styles.brandMark}>SGF</span>
+        <span className={styles.brandMark}>
+          <img src={logo} alt="logo" />
+        </span>
         <span>
           Sistema de Gestao
           <small>Fornecimento</small>
@@ -71,7 +77,6 @@ export default function Header({ currentPath, isLoggedIn, onLogout, onNavigate }
 
         {isLoggedIn && (
           <div className={styles.session}>
-            <span>{usuario?.email || "Usuario"}</span>
             <button
               type="button"
               className={styles.logoutButton}
